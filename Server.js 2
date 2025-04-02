@@ -1,0 +1,21 @@
+const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+const app = express();
+const target = 'https://example.com'; // Replace with the site you want to access
+
+app.use('/', createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', // Makes it look like a normal browser
+        'Referer': target, // Tricks filters into thinking you're visiting the target site
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        proxyReq.setHeader('X-Forwarded-For', ''); // Hides your real IP
+    }
+}));
+
+app.listen(3000, () => {
+    console.log('Stealth Proxy Running on Port 3000');
+});
